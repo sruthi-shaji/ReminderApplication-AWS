@@ -1,0 +1,478 @@
+# aws cloudformation create-stack --stack-name CloudTermAssignment --template-body file://term-assignment.yaml --region us-east-1
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create a Lambda functions, Step Function, Event bridge and an API Gateway API with DynamoDB and SNS integrations.
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: Name of the S3 bucket containing the Lambda code
+    Default: cloudformationbucket-sruthi
+  LabRoleARN:
+    Type: String
+    Description: ARN of the IAM role to be associated with the Lambda functions
+    Default: arn:aws:iam::058264398252:role/LabRole
+  ScheduleExpression:
+    Type: String
+    Description: The cron expression for the schedule
+    Default:  "cron(0 7 * * ? *)" # Runs every day at 7:00 AM
+
+Resources:
+  
+  # DynamoDB
+  BirthdayInfoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BirthdayInfo
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+    DeletionPolicy: Retain
+  
+  # SNS 
+  BirthDayWisher:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: BirthDayWisher
+      TopicName: BirthDayWisher
+
+  # Lambda functions
+  SignupLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: SignUp
+      Handler: signup_lambda.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: signup.zip
+
+  LoginLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: Login
+      Handler: login_lambda.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: login.zip
+
+  DeleteUserLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: DeleteUser
+      Handler: delete_user.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: delete_user.zip
+
+  FetchUserLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: FetchUser
+      Handler: fetch_user.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: fetch_user.zip
+
+  CreateBirthdayLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: CreateBirthday
+      Handler: create_birthday.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: create_birthday.zip
+
+  FetchBirthdayLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: FetchBirthday
+      Handler: fetch_birthday.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: fetch_birthday.zip
+
+  EditBirthdayLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: EditBirthday
+      Handler: edit_birthday.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: edit_birthday.zip
+
+  DeleteBirthdayLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: DeleteBirthday
+      Handler: delete_birthday.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: delete_birthday.zip
+
+  ScheduleEmailLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ScheduleEmailLambda
+      Handler: schedule_email.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Role: !Ref LabRoleARN
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: schedule_email.zip
+
+  # Step function
+  ScheduleStepFunction:
+    Type: AWS::StepFunctions::StateMachine
+    DependsOn:
+      - ScheduleEmailLambdaFunction
+    Properties:
+      StateMachineName: ScheduleStepFunction
+      RoleArn: !Ref LabRoleARN
+      DefinitionS3Location:
+        Bucket: !Ref S3BucketName
+        Key: step_function_script.json
+
+  # Event bridge
+  EventBridgeSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: ScheduleEmailNotify
+      Description: Schedule email notifications for birthday reminders daily at 7:00 AM
+      FlexibleTimeWindow: 
+          MaximumWindowInMinutes: 3
+          Mode: "FLEXIBLE"
+      GroupName: default
+      ScheduleExpression: !Ref ScheduleExpression
+      State: ENABLED
+      Target: 
+         Arn: !GetAtt ScheduleStepFunction.Arn
+         Input: "{}"
+         RoleArn: !Ref LabRoleARN
+
+  # Api Gateway
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: MyApi
+
+  # Resources
+  LoginResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+      PathPart: 'login'
+
+  SignupResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+      PathPart: 'signup'
+
+  UserResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+      PathPart: 'user'
+
+  BirthdayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref UserResource
+      PathPart: 'birthday'
+
+  CreateBirthdayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref BirthdayResource
+      PathPart: 'create'
+
+  EditBirthdayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref BirthdayResource
+      PathPart: 'edit'
+
+  # Methods
+  LoginMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref LoginResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LoginLambdaFunction.Arn}/invocations"
+
+  SignUpMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref SignupResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SignupLambdaFunction.Arn}/invocations"
+
+  DeleteUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref UserResource
+      HttpMethod: DELETE
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteUserLambdaFunction.Arn}/invocations"
+
+  FetchUserMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref UserResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchUserLambdaFunction.Arn}/invocations"
+
+  DeleteBirthdayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref BirthdayResource
+      HttpMethod: DELETE
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteBirthdayLambdaFunction.Arn}/invocations"
+
+  FetchBirthdayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref BirthdayResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchBirthdayLambdaFunction.Arn}/invocations"
+
+  CreateBirthdayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref CreateBirthdayResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateBirthdayLambdaFunction.Arn}/invocations"
+
+  EditBirthdayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref EditBirthdayResource
+      HttpMethod: PUT
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${EditBirthdayLambdaFunction.Arn}/invocations"
+
+  # Permissions
+
+  SignUpLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt SignupLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  LoginLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt LoginLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  DeleteUserLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt DeleteUserLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  FetchUserLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt FetchUserLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  CreateBirthdayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CreateBirthdayLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  FetchBirthdayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt FetchBirthdayLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  EditBirthdayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt EditBirthdayLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  DeleteBirthdayLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt DeleteBirthdayLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*/*
+
+  # Api Gateway Deployment
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: 
+      - ApiGatewayRestApi 
+      - LoginMethod 
+      - SignUpMethod 
+      - DeleteUserMethod 
+      - FetchUserMethod 
+      - DeleteBirthdayMethod 
+      - FetchBirthdayMethod 
+      - CreateBirthdayMethod
+      - EditBirthdayMethod
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiGatewayDeployment
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: birthdayWisher
+
+Outputs:
+  BirthDayWisherArn:
+    Description: ARN of the created SNS topic
+    Value: !Ref BirthDayWisher
+    
+  BirthdayInfoTableName:
+    Description: Name of the BirthdayInfo DynamoDB table
+    Value: !Ref BirthdayInfoTable
+
+  SignupLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt SignupLambdaFunction.Arn
+
+  LoginLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt LoginLambdaFunction.Arn
+
+  DeleteUserLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt DeleteUserLambdaFunction.Arn
+
+  FetchUserLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt FetchUserLambdaFunction.Arn
+
+  CreateBirthdayLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt CreateBirthdayLambdaFunction.Arn
+
+  FetchBirthdayLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt FetchBirthdayLambdaFunction.Arn
+
+  EditBirthdayLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt EditBirthdayLambdaFunction.Arn
+
+  DeleteBirthdayLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt DeleteBirthdayLambdaFunction.Arn
+
+  ScheduleEmailLambdaFunctionARN:
+    Description: ARN of the created Lambda function
+    Value: !GetAtt ScheduleEmailLambdaFunction.Arn
+
+  StepFunctionArn:
+    Description: ARN of the created Step Function
+    Value: !Ref ScheduleStepFunction
+
+  EventBridgeScheduleArn:
+    Description: ARN of the created EventBridge schedule
+    Value: !Ref EventBridgeSchedule
+
+  ApiGatewayRestApiId:
+    Description: ID of the created API Gateway REST API
+    Value: !Ref ApiGatewayRestApi
+    Export:
+      Name: ApiGatewayRestApiId
+
+  ApiGatewayDeploymentId:
+    Description: ID of the API Gateway deployment
+    Value: !Ref ApiGatewayDeployment
