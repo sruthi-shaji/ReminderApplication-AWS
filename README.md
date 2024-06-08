@@ -1,5 +1,6 @@
 # ReminderApplication-AWS
 Reminder Application for Birthdays using AWS Server-less Architecture
+Deployed URL : https://main--serverless-reminder-app.netlify.app/
 
 ## Data Flow Documentation
 
