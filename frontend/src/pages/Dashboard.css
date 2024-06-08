@@ -1,0 +1,60 @@
+#add-reminder{
+    margin: 20px;
+    width: 200px;
+    padding: 10px;
+}
+
+#test-reminder{
+    margin: 20px;
+    padding: 10px;
+}
+
+#test-reminder button{
+    color: black;
+    border: 2px solid black;
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    font-size: 18px;
+    background-color:rgb(224, 215, 215);
+}
+
+
+.reminder-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 50px;
+    padding: 30px;
+    border-radius: 25px;
+    background-color: rgb(224, 215, 215);
+}
+
+.modal {
+    width: 400px;
+    height: 400px;
+    border: none;
+    border-radius: 30px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    background: rgb(224, 215, 215);;
+    /* padding: 10px; */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(9, 8, 8, 0.5);
+}

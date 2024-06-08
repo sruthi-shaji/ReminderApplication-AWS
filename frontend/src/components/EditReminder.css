@@ -1,0 +1,44 @@
+.reminder-block{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.reminder-fields{
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.reminder-fields input {
+    width: 180px;
+    height: 30px;
+    border: none;
+    border-radius: 10px;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+.reminder-fields label{
+    font-size: 13px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.reminder-buttons {
+    margin: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.reminder-buttons button {
+    width: 100px;
+    height: 35px;
+    margin: 10px;
+    border: none;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+}

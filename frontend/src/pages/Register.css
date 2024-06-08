@@ -1,0 +1,93 @@
+.login-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    color: black;
+}
+
+.login-left {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.login-right {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-box{
+    background-color: gray;
+    color: white;
+    width: 400px;
+    height: 500px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-fields{
+    display: flex;
+    font-weight: bold;
+    flex-direction: column;
+    justify-content: space-evenly;
+    font-size: 16px;
+    margin: 10px;
+    padding: 10px;
+}
+
+.register-fields label{
+    font-size: 16px;
+    padding: 1px;
+    margin: 2px;
+}
+
+.register-fields input {
+    font-size: 16px;
+    font-family:'Times New Roman', Times, serif;
+    color: #344e41;
+    width: 250px;
+    height: 30px;
+    border: none;
+    border-radius: 30px;
+    margin: 2px;
+}
+
+
+.register-buttons{
+    margin: 10px;
+    padding: 10px;
+}
+
+.register-buttons button {
+    width: 120px;
+    height: 34px;
+    margin: 10px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.error-message{
+    color: #bc4749;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+}
