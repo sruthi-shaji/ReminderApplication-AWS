@@ -8,7 +8,6 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('BirthdayInfo')
 
 sns = boto3.client('sns', region_name='us-east-1')
-sns_topic_arn = 'arn:aws:sns:us-east-1:058264398252:BirthDayWisher'
 
 def lambda_handler(event, context):
     if 'body' in event:
@@ -46,7 +45,7 @@ def lambda_handler(event, context):
                         'arn' : created_arn
                         })
     subscribe_to_topic(new_email, created_arn)
-    send_notification(new_username)
+    send_notification(new_username, created_arn)
 
     return {
         'statusCode': 201,
@@ -61,20 +60,14 @@ def subscribe_to_topic(email, created_arn):
         Endpoint=email
     )
 
-    subscribe = sns.subscribe(
-        TopicArn = sns_topic_arn,
-        Protocol = 'email',
-        Endpoint= email
-    )
-
-def send_notification(name):
+def send_notification(name, created_arn):
 
     # Send notification email using Amazon SNS
-    message = f"Welcome {name}'s to BirthdayWisher"
-    subject = f"{name} is new to BirthdayWisher. Say Hi to them!!"
+    message = f"Welcome to BirthdayWisher"
+    subject = f"Welcome to BirthdayWisher, {name}!! Have a good day!!"
     
     sns.publish(
-        TopicArn=sns_topic_arn,
+        TopicArn=created_arn,
         Message=message,
         Subject=subject,
     )
