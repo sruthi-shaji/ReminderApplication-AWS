@@ -33,7 +33,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUser = () => {
             const userId = localStorage.getItem('userId');
-            axios.post('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user', {
+            axios.post('http://localhost:8000/user', {
                 "user_id": userId
             }).then((response) => {
 
@@ -43,21 +43,21 @@ export default function Navbar() {
             });
         };
 
-        const fetchImageUrl = () => {
-            axios.get('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user/image?userId=' + localStorage.getItem("userId"))
-                .then((response) => {
-                    // console.log(response.data);
-                    const data = response.data;//.json();
-                    setUserDetails((prevUser) => {
-                        return { ...prevUser, ["file"]: JSON.parse(data.body).url };
-                    });
-                }).catch((error) => {
-                    console.error('Error fetching pre-signed URL:', error);
-                });
-        };
+        // const fetchImageUrl = () => {
+        //     axios.get('http://localhost:8000/user/image?userId=' + localStorage.getItem("userId"))
+        //         .then((response) => {
+        //             // console.log(response.data);
+        //             const data = response.data;//.json();
+        //             setUserDetails((prevUser) => {
+        //                 return { ...prevUser, ["file"]: JSON.parse(data.body).url };
+        //             });
+        //         }).catch((error) => {
+        //             console.error('Error fetching pre-signed URL:', error);
+        //         });
+        // };
 
         fetchUser();
-        fetchImageUrl();
+        // fetchImageUrl();
     }, []);
 
 

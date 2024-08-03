@@ -32,7 +32,7 @@ export default function Login() {
             "password": credentials.password
         }).then((response) => {
             if (response.status === 200) {
-                const userId = response.data.userId;
+                const userId = response.data.user_id;
                 localStorage.setItem('userId', userId);
                 navigate('/dashboard');
             }

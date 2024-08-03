@@ -18,10 +18,11 @@ export default function Dashboard() {
 
     const fetchUser = () => {
         const userId = localStorage.getItem('userId');
-        axios.post('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user', {
+        axios.post('http://localhost:8000/user', {
             "user_id": userId
         }).then((response) => {
             setUserDetails(response?.data);
+            console.log(userDetails);
             setLoading(false);
         }).catch((error) => {
             console.log(error);
@@ -65,7 +66,7 @@ export default function Dashboard() {
                 <TabPanel value="1">
                     <div className="reminder-container">
                         {
-                            (userDetails?.birthday_list?.length > 0) ? (userDetails?.birthday_list?.map((item, index) => (<div>
+                            (userDetails?.reminder_list?.length > 0) ? (userDetails?.reminder_list?.map((item, index) => (<div>
                                 <ReminderCard key={item.id} reminder={item} onEdit={openModal} onDelete={reset} />
                             </div>))) : "You don't have any past reminders."
                         }
@@ -74,7 +75,7 @@ export default function Dashboard() {
                 <TabPanel value="2">
                     <div className="reminder-container">
                         {
-                            (userDetails?.birthday_list?.length > 0) ? (userDetails?.birthday_list?.map((item, index) => (<div>
+                            (userDetails?.reminder_list?.length > 0) ? (userDetails?.reminder_list?.map((item, index) => (<div>
                                 <ReminderCard key={item.id} reminder={item} onEdit={openModal} onDelete={reset} />
                             </div>))) : "You don't have any future reminders."
                         }

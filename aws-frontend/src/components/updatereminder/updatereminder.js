@@ -6,8 +6,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Button from '@mui/material/Button';
 import axios from 'axios';
-import { MuiFileInput } from 'mui-file-input'
-
+import { MuiFileInput } from 'mui-file-input';
+import moment from 'moment';
 
 export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
     const [error, setError] = useState({});
@@ -15,20 +15,23 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
     const message = type === "edit" ? "Update Reminder" : "Add Reminder";
 
     const handleReminderChange = (field, value) => {
+        setError({});
         setLocalReminder(prevReminder => ({ ...prevReminder, [field]: value }));
     };
 
+    console.log(localReminder);
+
     const handleUpdate = () => {
-        if (!localReminder.name || !localReminder.date) {
+        if (!localReminder.title || !localReminder.description || !localReminder.date) {
             setError({ empty_reminder: 'All fields are required' });
             return;
         }
         if (type === "add") {
-            axios.post('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user/birthday/create', {
+            axios.post('http://localhost:8000/reminder', {
                 ...localReminder,
                 "user_id": localStorage.getItem("userId")
             }).then((response) => {
-                if (response.status === 201) {
+                if (response.status === 200) {
                     console.log('Reminder added successfully');
                     onSubmit();
                 }
@@ -37,10 +40,11 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             });
         }
         else if (type === "edit") {
-            axios.put('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user/birthday/edit', {
+            axios.put('http://localhost:8000/reminder', {
                 "user_id": localStorage.getItem("userId"),
-                "birthday_id": localReminder.id.toString(),
-                "name": localReminder.name.toString(),
+                "reminder_id": localReminder.id.toString(),
+                "title": localReminder.title.toString(),
+                "description": localReminder.description.toString(),
                 "date": localReminder.date.toString()
             }).then((response) => {
                 if (response.status === 200) {
@@ -59,6 +63,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             <TextField
                 error={error.empty_reminder}
                 label="Title"
+                value={localReminder.title}
                 fullWidth
                 required
                 onChange={(event) => {
@@ -69,6 +74,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             <TextField
                 error={error.empty_reminder}
                 label="Description"
+                value={localReminder.description}
                 fullWidth
                 required
                 multiline
@@ -93,6 +99,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                         label="Date"
+                        // defaultValue={moment(localReminder.date, 'YYYY-MM-DD')}
                         onChange={(value) => {
                             const formattedDate = value.format('YYYY-MM-DD');
                             handleReminderChange("date", formattedDate);

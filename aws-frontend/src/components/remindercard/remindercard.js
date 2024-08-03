@@ -9,10 +9,10 @@ import axios from "axios";
 export default function ReminderCard({ reminder, onEdit, onDelete }) {
 
     const handleDelete = () => {
-        axios.delete('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/user/birthday', {
+        axios.delete('http://localhost:8000/reminder', {
             data: {
                 "user_id": localStorage.getItem('userId').toString(),
-                "birthday_id": reminder.id.toString()
+                "reminder_id": reminder.id.toString()
             }
         }).then((response) => {
             console.log("Deleted Reminder");
@@ -23,21 +23,21 @@ export default function ReminderCard({ reminder, onEdit, onDelete }) {
     };
 
     return (
-        <div style={{ margin: "1%" }}>
-            <Card sx={{ maxWidth: 345 }}>
+        <div style={{ margin: "1%", padding: "1%" }}>
+            <Card sx={{ minWidth: 300 }}>
                 <CardMedia
                     sx={{ height: 140 }}
                     image="https://st4.depositphotos.com/13193658/26589/i/450/depositphotos_265891876-stock-photo-selective-focus-word-reminder-made.jpg"
                     title="green iguana"
                 />
                 <CardContent>
-                    <h4>
-                        Lizard
+                    <h4 style={{ whiteSpace: "nowrap" }}>
+                        {reminder.title}
                     </h4>
                     <p style={{ fontSize: "1rem" }}>
-                        Lizards are a widespread group of squamate reptiles, with over 6,000
-                        species, ranging across all continents except Antarctica
+                        {reminder.description}
                     </p>
+                    <p style={{ fontSize: "0.8rem" }}>{reminder.date}</p>
                 </CardContent>
                 <CardActions>
                     <Button size="small" onClick={() => onEdit("edit", reminder)}>Edit</Button>

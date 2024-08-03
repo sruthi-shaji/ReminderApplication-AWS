@@ -39,7 +39,7 @@ export default function Signup() {
             reader.onload = async () => {
                 const fileContent = reader.result.split(',')[1];
 
-                axios.post('https://vg31ptt9cj.execute-api.us-east-1.amazonaws.com/birthdayWisher/signup', {
+                axios.post('http://localhost:8000/signup', {
                     "user_id": localStorage.getItem("userId"),
                     "username": credentials.name,
                     "email": credentials.email,
