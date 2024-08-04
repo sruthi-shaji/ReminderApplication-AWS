@@ -16,6 +16,7 @@ app.config.from_object(Config)
 session = boto3.Session(
     aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
     aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+    aws_session_token=app.config['AWS_SESSION_TOKEN'],
     region_name=app.config['AWS_REGION']
 )
 
