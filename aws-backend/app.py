@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 import os
 from flask_cors import CORS
 
+from io import BytesIO
+
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -16,7 +19,7 @@ app.config.from_object(Config)
 session = boto3.Session(
     aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
     aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
-    aws_session_token=app.config['AWS_SESSION_TOKEN'],
+    # aws_session_token=app.config['AWS_SESSION_TOKEN'],
     region_name=app.config['AWS_REGION']
 )
 
@@ -24,44 +27,64 @@ dynamodb = session.resource('dynamodb')
 table = dynamodb.Table(app.config['DYNAMODB_TABLE_NAME'])
 
 sns = session.client('sns')
-
+s3_client = session.client('s3')
+bucket_name = 'test-images-cloud'
 
 # Configure CORS
 CORS(app)
 
 @app.route('/signup', methods=['POST'])
-def signup():
-    event_body = request.get_json()
+def test():
+    headers = request.headers
+    form_data = request.form.to_dict()
+    images = []
 
-    new_username = event_body.get('username')
-    new_password = event_body.get('password')
-    new_email = event_body.get('email')
+    for key in request.files:
+        file = request.files[key]
+        images.append({
+            'filename': file.filename,
+            'content': BytesIO(file.read())
+        })
 
-    # Check if the username already exists
-    response = table.scan(FilterExpression=Attr('username').eq(new_username))
-    if response['Items']:
-        return jsonify({'message': 'Username already exists'}), 400
+    try:
+        new_username = form_data['username']
+        new_password = form_data['password']
+        new_email = form_data['email']
 
-    topic_name = f"{new_username}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
-    created_topic = sns.create_topic(Name=topic_name)
-    created_arn = created_topic['TopicArn']
+        # Check if the username already exists
+        response = table.scan(FilterExpression=Attr('username').eq(new_username))
+        if response['Items']:
+            return jsonify({'message': 'Username already exists'}), 400
 
-    # Generate a new userId
-    new_user_id = str(uuid.uuid4())
+        topic_name = f"{new_username}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+        created_topic = sns.create_topic(Name=topic_name)
+        created_arn = created_topic['TopicArn']
 
-    # Create a new user in the database
-    table.put_item(Item={
-        'userId': new_user_id,
-        'username': new_username,
-        'password': new_password,
-        'email': new_email,
-        'reminder_list': [],
-        'arn': created_arn
-    })
-    subscribe_to_topic(new_email, created_arn)
-    send_notification(new_username, created_arn)
+        # Generate a new userId
+        new_user_id = str(uuid.uuid4())
 
-    return jsonify({'message': 'User created successfully'}), 200
+        # Create a new user in the database
+        table.put_item(Item={
+            'userId': new_user_id,
+            'username': new_username,
+            'password': new_password,
+            'email': new_email,
+            'reminder_list': [],
+            'arn': created_arn
+        })
+
+        subscribe_to_topic(new_email, created_arn)
+        send_notification(new_username, created_arn)
+
+        for image in images:
+            file_extension = os.path.splitext(image['filename'])[1]
+            s3_key = f"{new_user_id}/{str(uuid.uuid4())}{file_extension}"
+            s3_client.upload_fileobj(image['content'], bucket_name, s3_key)
+
+        return jsonify({'message': 'User created successfully'}), 200
+    except Exception as ex:
+        print(ex)
+        return jsonify({'error': f'Error creating user: {str(ex)}'}), 500
 
 def subscribe_to_topic(email, created_arn):
     # Subscribe the user's email address to the SNS topic
