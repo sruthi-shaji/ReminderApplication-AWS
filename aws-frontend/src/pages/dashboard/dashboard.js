@@ -18,7 +18,7 @@ export default function Dashboard() {
 
     const fetchUser = () => {
         const userId = localStorage.getItem('userId');
-        axios.post('http://localhost:8000/user', {
+        axios.post('http://10.0.150.50:8000/user', {
             "user_id": userId
         }).then((response) => {
             setUserDetails(response?.data);

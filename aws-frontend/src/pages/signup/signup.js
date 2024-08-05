@@ -32,36 +32,26 @@ export default function Signup() {
             return;
         }
 
-        try {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-
-            reader.onload = async () => {
-                const fileContent = reader.result.split(',')[1];
-
-                axios.post('http://localhost:8000/signup', {
-                    "user_id": localStorage.getItem("userId"),
-                    "username": credentials.name,
-                    "email": credentials.email,
-                    "password": credentials.password,
-                    "confirm_password": credentials.confirm_password,
-                    fileContent
-                }).then((response) => {
-                    if (response.status === 201) {
-                        navigate('/');
-                        //toast message
-                    }
-                    setError({ error: 'Registration failed!' });
-
-                }).catch((error) => {
-                    setError({ error: 'Registration failed!' });
-                });
-            };
-        } catch (err) {
-            console.error(err);
-            setError({ error: 'An error occurred!' });
-        }
-
+        const formData = new FormData();
+        formData.append('user_id', localStorage.getItem("userId"));
+        formData.append('username', credentials.name);
+        formData.append('email', credentials.email);
+        formData.append('password', credentials.password);
+        formData.append('confirm_password', credentials.confirm_password);
+        formData.append('file', file);
+        axios.post("http://10.0.150.50:8000/signup", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((response) => {
+            if (response.status === 200) {
+                navigate('/');
+                //toast message
+            }
+            setError({ error: 'Registration failed!' });
+        }).catch((error) => {
+            setError({ error: 'Registration failed!' });
+        });
     };
 
     return (
