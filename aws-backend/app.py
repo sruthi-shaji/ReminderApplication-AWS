@@ -31,7 +31,7 @@ s3_client = session.client('s3')
 bucket_name = 'test-images-cloud'
 
 # Configure CORS with specific origins
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
 
 @app.route('/signup', methods=['POST'])
 def test():
