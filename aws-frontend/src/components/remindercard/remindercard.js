@@ -9,7 +9,7 @@ import axios from "axios";
 export default function ReminderCard({ reminder, onEdit, onDelete }) {
 
     const handleDelete = () => {
-        axios.delete('http://10.0.142.45:8000/reminder', {
+        axios.delete('http://10.0.131.52:8000/reminder', {
             data: {
                 "user_id": localStorage.getItem('userId').toString(),
                 "reminder_id": reminder.id.toString()

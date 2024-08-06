@@ -27,7 +27,7 @@ export default function Login() {
             return;
         }
 
-        axios.post('http://10.0.142.45:8000/login', {
+        axios.post('http://10.0.131.52:8000/login', {
             "username": credentials.username,
             "password": credentials.password
         }).then((response) => {
