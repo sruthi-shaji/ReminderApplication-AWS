@@ -33,7 +33,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUser = () => {
             const userId = localStorage.getItem('userId');
-            axios.post('http://10.0.131.52:8000/user', {
+            axios.post('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/user', {
                 "user_id": userId
             }).then((response) => {
 
@@ -44,7 +44,7 @@ export default function Navbar() {
         };
 
         // const fetchImageUrl = () => {
-        //     axios.get('http://10.0.131.52:8000/user/image?userId=' + localStorage.getItem("userId"))
+        //     axios.get('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
         //         .then((response) => {
         //             // console.log(response.data);
         //             const data = response.data;//.json();
