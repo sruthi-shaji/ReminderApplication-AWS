@@ -39,7 +39,7 @@ export default function Signup() {
         formData.append('password', credentials.password);
         formData.append('confirm_password', credentials.confirm_password);
         formData.append('file', file);
-        axios.post("http://10.0.150.50:8000/signup", formData, {
+        axios.post("http://10.0.142.45:8000/signup", formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

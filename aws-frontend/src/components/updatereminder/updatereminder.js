@@ -27,7 +27,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             return;
         }
         if (type === "add") {
-            axios.post('http://10.0.150.50:8000/reminder', {
+            axios.post('http://10.0.142.45:8000/reminder', {
                 ...localReminder,
                 "user_id": localStorage.getItem("userId")
             }).then((response) => {
@@ -40,7 +40,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             });
         }
         else if (type === "edit") {
-            axios.put('http://10.0.150.50:8000/reminder', {
+            axios.put('http://10.0.142.45:8000/reminder', {
                 "user_id": localStorage.getItem("userId"),
                 "reminder_id": localReminder.id.toString(),
                 "title": localReminder.title.toString(),
