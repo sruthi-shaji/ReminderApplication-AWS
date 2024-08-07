@@ -9,26 +9,37 @@ import os
 from flask_cors import CORS
 
 from io import BytesIO
+import requests
+import json
 
 
-load_dotenv()
+# load_dotenv()
+def get_config_from_url():
+    url = 'https://mxtcad22akeefp6dbx2nl2o4bi0wwrci.lambda-url.us-west-2.on.aws/'
+    response = requests.get(url)
+    if response.status_code == 200:
+        config_data = response.json()
+        secrets = json.loads(config_data["secrets"])
+        return secrets
+    else:
+        raise Exception(f"Failed to retrieve configuration from {url}")
 
 app = Flask(__name__)
-app.config.from_object(Config)
+config = get_config_from_url()
 
 session = boto3.Session(
-    aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-    aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
-    # aws_session_token=app.config['AWS_SESSION_TOKEN'],
-    region_name=app.config['AWS_REGION']
+    aws_access_key_id=config['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
+    region_name=config['AWS_REGION']
+    # aws_session_token=config['AWS_SESSION_TOKEN']
 )
 
 dynamodb = session.resource('dynamodb')
-table = dynamodb.Table(app.config['DYNAMODB_TABLE_NAME'])
+table = dynamodb.Table(config['DYNAMODB_TABLE_NAME'])
 
 sns = session.client('sns')
 s3_client = session.client('s3')
-bucket_name = 'test-images-cloud'
+bucket_name = 'remindo-images-cloud'
 
 # Configure CORS with specific origins
 CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
@@ -156,7 +167,6 @@ def add_reminder():
         user_id = event_body.get('user_id')
         new_title = event_body.get('title')
         new_description = event_body.get('description')
-        # new_name = event_body.get('name')
         new_date = event_body.get('date')
 
         # Generate a new unique ID for the reminder log
@@ -191,7 +201,6 @@ def edit_reminder():
         reminder_id = event_body.get('reminder_id')
 
         # Extract new_name and new_date from the event
-        # new_name = event_body.get('name')
         new_title = event_body.get('title')
         new_description = event_body.get('description')
         new_date = event_body.get('date')
@@ -205,7 +214,6 @@ def edit_reminder():
                     # Update the specific reminder log
                     reminder['title'] = new_title
                     reminder['description'] = new_description
-                    # reminder['name'] = new_name
                     reminder['date'] = new_date
 
                     # Update reminder logs for the specified user in DynamoDB
