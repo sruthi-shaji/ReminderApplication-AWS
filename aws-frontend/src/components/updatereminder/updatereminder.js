@@ -27,7 +27,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             return;
         }
         if (type === "add") {
-            axios.post('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/reminder', {
+            axios.post('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/reminder', {
                 ...localReminder,
                 "user_id": localStorage.getItem("userId")
             }).then((response) => {
@@ -40,7 +40,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
             });
         }
         else if (type === "edit") {
-            axios.put('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/reminder', {
+            axios.put('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/reminder', {
                 "user_id": localStorage.getItem("userId"),
                 "reminder_id": localReminder.id.toString(),
                 "title": localReminder.title.toString(),

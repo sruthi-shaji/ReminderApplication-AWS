@@ -33,7 +33,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUser = () => {
             const userId = localStorage.getItem('userId');
-            axios.post('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/user', {
+            axios.post('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/user', {
                 "user_id": userId
             }).then((response) => {
 
@@ -44,7 +44,7 @@ export default function Navbar() {
         };
 
         // const fetchImageUrl = () => {
-        //     axios.get('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
+        //     axios.get('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
         //         .then((response) => {
         //             // console.log(response.data);
         //             const data = response.data;//.json();
