@@ -39,7 +39,7 @@ export default function Signup() {
         formData.append('password', credentials.password);
         formData.append('confirm_password', credentials.confirm_password);
         formData.append('file', file);
-        axios.post("http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/signup", formData, {
+        axios.post("http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/signup", formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

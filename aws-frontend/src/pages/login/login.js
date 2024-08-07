@@ -27,7 +27,7 @@ export default function Login() {
             return;
         }
 
-        axios.post('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/login', {
+        axios.post('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/login', {
             "username": credentials.username,
             "password": credentials.password
         }).then((response) => {

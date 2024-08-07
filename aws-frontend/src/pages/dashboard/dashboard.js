@@ -18,7 +18,7 @@ export default function Dashboard() {
 
     const fetchUser = () => {
         const userId = localStorage.getItem('userId');
-        axios.post('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/user', {
+        axios.post('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/user', {
             "user_id": userId
         }).then((response) => {
             setUserDetails(response?.data);

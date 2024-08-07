@@ -33,7 +33,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUser = () => {
             const userId = localStorage.getItem('userId');
-            axios.post('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/user', {
+            axios.post('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/user', {
                 "user_id": userId
             }).then((response) => {
 
@@ -44,7 +44,7 @@ export default function Navbar() {
         };
 
         // const fetchImageUrl = () => {
-        //     axios.get('http://cloudfinal-backend-alb-1135630707.us-west-2.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
+        //     axios.get('http://cloudfinal-backend-lb-1880328353.us-west-2.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
         //         .then((response) => {
         //             // console.log(response.data);
         //             const data = response.data;//.json();
@@ -74,8 +74,8 @@ export default function Navbar() {
         <h3>Reminders</h3>
         {accessToken && (<div>
             <img
-                // src={userDetails.file}
-                src="https://www.datocms-assets.com/70938/1683306538-1682964958-henry-cavill-1.jpg?auto=format%2Ccompress&cs=srgb"
+                src={userDetails.file}
+                // src="https://www.datocms-assets.com/70938/1683306538-1682964958-henry-cavill-1.jpg?auto=format%2Ccompress&cs=srgb"
                 alt="Profile"
                 className="profile-pic"
                 onClick={(event) => { handleAccount(event) }}
