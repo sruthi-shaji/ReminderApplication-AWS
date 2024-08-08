@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./navbar.css";
 import axios from "axios";
-import Popper from '@mui/material/Popper';
+// import Popper from '@mui/material/Popper';
 import { useNavigate } from "react-router-dom";
 
 import List from '@mui/material/List';
@@ -19,8 +19,6 @@ export default function Navbar() {
     const [userDetails, setUserDetails] = useState({});
     const [anchorEl, setAnchorEl] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-
-    const accessToken = localStorage.getItem("userId");
     const handleAccount = (event) => {
         setAnchorEl(event.currentTarget);
     }
@@ -28,37 +26,21 @@ export default function Navbar() {
     console.log(userDetails);
     const openModal = () => { setModalOpen(true) };
     const closeModal = () => { setModalOpen(false) };
-
+    const userId = localStorage.getItem('userId');
 
     useEffect(() => {
         const fetchUser = () => {
-            const userId = localStorage.getItem('userId');
             axios.post('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/user', {
                 "user_id": userId
             }).then((response) => {
-
                 setUserDetails(response?.data);
             }).catch((error) => {
                 console.log(error);
             });
         };
 
-        // const fetchImageUrl = () => {
-        //     axios.get('http://remindo-cloud-backend-lb-1751912436.us-east-1.elb.amazonaws.com:8000/user/image?userId=' + localStorage.getItem("userId"))
-        //         .then((response) => {
-        //             // console.log(response.data);
-        //             const data = response.data;//.json();
-        //             setUserDetails((prevUser) => {
-        //                 return { ...prevUser, ["file"]: JSON.parse(data.body).url };
-        //             });
-        //         }).catch((error) => {
-        //             console.error('Error fetching pre-signed URL:', error);
-        //         });
-        // };
-
         fetchUser();
-        // fetchImageUrl();
-    }, []);
+    }, [userId]);
 
 
     const handleLogout = () => {
@@ -72,15 +54,15 @@ export default function Navbar() {
 
     return (<div style={{ backgroundColor: "white", color: "black", padding: "0.8%", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
         <h3>Reminders</h3>
-        {accessToken && (<div>
+        {userId && (<div>
             <img
-                src={userDetails.file}
-                // src="https://www.datocms-assets.com/70938/1683306538-1682964958-henry-cavill-1.jpg?auto=format%2Ccompress&cs=srgb"
+                src={userDetails.image}
                 alt="Profile"
                 className="profile-pic"
                 onClick={(event) => { handleAccount(event) }}
             >
             </img>
+
             <Popover
                 open={open}
                 anchorEl={anchorEl}

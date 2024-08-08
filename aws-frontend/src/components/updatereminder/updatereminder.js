@@ -6,8 +6,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Button from '@mui/material/Button';
 import axios from 'axios';
-import { MuiFileInput } from 'mui-file-input';
-import moment from 'moment';
+// import { MuiFileInput } from 'mui-file-input';
+// import moment from 'moment';
 
 export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
     const [error, setError] = useState({});
@@ -84,7 +84,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
                 }}
                 style={{ margin: "2% 0" }}
             />
-            <MuiFileInput
+            {/* <MuiFileInput
                 label="Upload Image"
                 fullWidth
                 value={localReminder?.file}
@@ -93,7 +93,7 @@ export default function UpdateReminder({ type, reminder, onSubmit, onCancel }) {
                 }}
                 inputProps={{ accept: 'image/*' }}
                 style={{ margin: "2% 0 " }}
-            />
+            /> */}
             <div style={{ flexDirection: "row", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 {/* <div style={{ flexDirection: "column", display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>

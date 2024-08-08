@@ -25,11 +25,11 @@ export default function ReminderCard({ reminder, onEdit, onDelete }) {
     return (
         <div style={{ margin: "1%", padding: "1%" }}>
             <Card sx={{ minWidth: 300 }}>
-                <CardMedia
+                {/* <CardMedia
                     sx={{ height: 140 }}
                     image="https://st4.depositphotos.com/13193658/26589/i/450/depositphotos_265891876-stock-photo-selective-focus-word-reminder-made.jpg"
                     title="green iguana"
-                />
+                /> */}
                 <CardContent>
                     <h4 style={{ whiteSpace: "nowrap" }}>
                         {reminder.title}
