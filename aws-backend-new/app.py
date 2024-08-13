@@ -26,7 +26,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
-config = get_config_from_url()
+# config = get_config_from_url()
 
 session = boto3.Session(
     aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
