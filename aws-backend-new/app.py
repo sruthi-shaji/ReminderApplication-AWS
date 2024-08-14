@@ -35,7 +35,7 @@ app = Flask(__name__)
 #     region_name=app.config['AWS_REGION']
 # )
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table("ReminderInfo", region_name='us-east-1')
 
 sns = boto3.client('sns')
