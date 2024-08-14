@@ -3,8 +3,8 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 import uuid
 from datetime import datetime
-from config import Config
-from dotenv import load_dotenv
+# from config import Config
+# from dotenv import load_dotenv
 import os
 from flask_cors import CORS
 
@@ -13,7 +13,7 @@ import requests
 import json
 
 
-load_dotenv()
+# load_dotenv()
 # def get_config_from_url():
 #     url = 'https://mxtcad22akeefp6dbx2nl2o4bi0wwrci.lambda-url.us-west-2.on.aws/'
 #     response = requests.get(url)
@@ -25,22 +25,22 @@ load_dotenv()
 #         raise Exception(f"Failed to retrieve configuration from {url}")
 
 app = Flask(__name__)
-app.config.from_object(Config)
+# app.config.from_object(Config)
 # config = get_config_from_url()
 
-session = boto3.Session(
-    aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
-    aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
-    aws_session_token=app.config['AWS_SESSION_TOKEN'],
-    region_name=app.config['AWS_REGION']
-)
+# session = boto3.Session(
+#     aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+#     aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+#     aws_session_token=app.config['AWS_SESSION_TOKEN'],
+#     region_name=app.config['AWS_REGION']
+# )
 
-dynamodb = session.resource('dynamodb')
-table = dynamodb.Table(app.config['DYNAMODB_TABLE_NAME'])
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table("ReminderInfo")
 
-sns = session.client('sns')
-s3_client = session.client('s3')
-bucket_name = 'remindo-images-cloud-1'
+sns = boto3.client('sns')
+s3_client = boto3.client('s3')
+bucket_name = 'remindo-images-cloud'
 
 # Configure CORS with specific origins
 CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
