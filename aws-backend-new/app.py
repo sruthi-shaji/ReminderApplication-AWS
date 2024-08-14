@@ -36,10 +36,10 @@ app = Flask(__name__)
 # )
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-table = dynamodb.Table("ReminderInfo", region_name='us-east-1')
+table = dynamodb.Table("ReminderInfo")
 
-sns = boto3.client('sns')
-s3_client = boto3.client('s3')
+sns = boto3.client('sns', region_name='us-east-1')
+s3_client = boto3.client('s3', region_name='us-east-1')
 bucket_name = 'remindo-profileimages-cloud'
 
 # Configure CORS with specific origins
