@@ -36,7 +36,7 @@ app = Flask(__name__)
 # )
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table("ReminderInfo")
+table = dynamodb.Table("ReminderInfo", region_name='us-east-1')
 
 sns = boto3.client('sns')
 s3_client = boto3.client('s3')
