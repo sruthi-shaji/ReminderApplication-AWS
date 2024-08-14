@@ -40,7 +40,7 @@ table = dynamodb.Table("ReminderInfo")
 
 sns = boto3.client('sns')
 s3_client = boto3.client('s3')
-bucket_name = 'remindo-images-cloud'
+bucket_name = 'remindo-profileimages-cloud'
 
 # Configure CORS with specific origins
 CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
